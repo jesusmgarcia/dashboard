@@ -1,13 +1,4 @@
-### Requirement: Settings page route
-The system SHALL provide a `/settings` route accessible to authenticated users that displays their profile information.
-
-#### Scenario: Settings page is accessible to authenticated users
-- **WHEN** an authenticated user navigates to `/settings`
-- **THEN** the system SHALL render the settings page within the dashboard layout
-
-#### Scenario: Unauthenticated access is blocked
-- **WHEN** an unauthenticated visitor navigates to `/settings`
-- **THEN** the proxy SHALL redirect them to `/`
+## MODIFIED Requirements
 
 ### Requirement: Profile information display
 The settings page SHALL display the authenticated user's profile information in an editable card with a horizontal layout: a left panel containing the profile avatar, name, and email, and a right panel containing all editable form fields arranged in a 2-column grid.
@@ -52,15 +43,15 @@ The settings card SHALL display the circular profile photo in the left panel of 
 - **THEN** the avatar SHALL render a generic person icon or the first character of the email address
 
 ### Requirement: Extended profile fields
-The settings page SHALL organise the nine editable fields into two named sections within the right panel of the card: an "Information" section containing full name, email address, phone number, and user role; and an "Address" section containing country, state/region, city, ZIP/postal code, and address. Each section SHALL display its fields in a 2-column grid with a visible section header above it.
+The settings page SHALL arrange all nine editable fields in a 2-column grid on the right side of the card: full name and email address in the first row, phone number and user role in the second row, country and state/region in the third row, city and ZIP/postal code in the fourth row, and address spanning the full width in the fifth row.
 
-#### Scenario: Information section is visible with its header and fields
-- **WHEN** the settings page is rendered
-- **THEN** the right panel SHALL display an "Information" section header followed by a 2-column grid containing: Full Name, Email Address, Phone Number, and User Role
+#### Scenario: All fields are visible and labeled in a 2-column grid
+- **WHEN** the settings page is rendered on a wide viewport
+- **THEN** each of the nine profile fields SHALL be visible with a clear label, arranged in a 2-column grid within the right panel
 
-#### Scenario: Address section is visible with its header and fields
+#### Scenario: Address field spans full width
 - **WHEN** the settings page is rendered
-- **THEN** the right panel SHALL display an "Address" section header followed by a 2-column grid containing: Country, State/Region, City, ZIP/Postal Code, and Address (spanning full width)
+- **THEN** the address field SHALL span both columns of the grid
 
 #### Scenario: Profile data is saved to MongoDB
 - **WHEN** the user submits the form with valid data
@@ -69,10 +60,3 @@ The settings page SHALL organise the nine editable fields into two named section
 #### Scenario: Email field retains current authenticated email by default
 - **WHEN** the settings page is rendered
 - **THEN** the email field SHALL be pre-populated with the authenticated user's current email address
-
-### Requirement: Settings page navigation
-The settings page SHALL be reachable from the user profile menu and integrate into the existing dashboard navigation.
-
-#### Scenario: Settings link in profile menu navigates correctly
-- **WHEN** the user clicks "Settings" in the profile dropdown
-- **THEN** the browser SHALL navigate to `/settings` and the page SHALL render the profile information
