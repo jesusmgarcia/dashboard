@@ -21,19 +21,19 @@ export async function proxy(req: NextRequest) {
     }
   })();
 
-  // Redirect authenticated users away from auth pages
-  if (isAuthenticated && (pathname === "/login" || pathname === "/register")) {
+  // Redirect authenticated users away from the auth page
+  if (isAuthenticated && pathname === "/") {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   // Protect all /dashboard/** routes
   if (pathname.startsWith("/dashboard") && !isAuthenticated) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: ["/dashboard/:path*", "/"],
 };
