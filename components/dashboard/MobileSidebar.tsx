@@ -3,6 +3,7 @@
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { navItems } from "./navItems"
 import { NavLink } from "./NavLink"
+import { SidebarProjects } from "./SidebarProjects"
 
 interface MobileSidebarProps {
   open: boolean
@@ -17,10 +18,13 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
         <div className="flex h-16 items-center border-b border-sidebar-border px-6">
           <span className="text-lg font-semibold">My App</span>
         </div>
-        <nav className="space-y-1 p-4">
-          {navItems.map((item) => (
-            <NavLink key={item.href} item={item} onClick={() => onOpenChange(false)} />
-          ))}
+        <nav className="overflow-y-auto p-4">
+          <div className="space-y-1">
+            {navItems.map((item) => (
+              <NavLink key={item.href} item={item} onClick={() => onOpenChange(false)} />
+            ))}
+          </div>
+          <SidebarProjects />
         </nav>
       </SheetContent>
     </Sheet>
