@@ -3,8 +3,9 @@
 import { navItems } from "./navItems"
 import { NavLink } from "./NavLink"
 import { SidebarProjects } from "./SidebarProjects"
+import type { ProjectItem } from "./DashboardLayout"
 
-export function Sidebar() {
+export function Sidebar({ initialProjects }: { initialProjects: ProjectItem[] }) {
   return (
     <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 items-center border-b border-sidebar-border px-6">
@@ -16,7 +17,7 @@ export function Sidebar() {
             <NavLink key={item.href} item={item} />
           ))}
         </div>
-        <SidebarProjects />
+        <SidebarProjects initialProjects={initialProjects} />
       </nav>
     </aside>
   )

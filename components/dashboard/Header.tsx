@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button"
 import { MobileSidebar } from "./MobileSidebar"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { UserProfileMenu } from "@/app/components/UserProfileMenu"
+import type { ProjectItem } from "./DashboardLayout"
 
 type Props = {
   title?: string
   user?: { email: string }
+  initialProjects: ProjectItem[]
 }
 
-export function Header({ title, user }: Props) {
+export function Header({ title, user, initialProjects }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
@@ -34,7 +36,11 @@ export function Header({ title, user }: Props) {
         {user && <UserProfileMenu user={user} />}
       </div>
 
-      <MobileSidebar open={mobileOpen} onOpenChange={setMobileOpen} />
+      <MobileSidebar
+        open={mobileOpen}
+        onOpenChange={setMobileOpen}
+        initialProjects={initialProjects}
+      />
     </header>
   )
 }

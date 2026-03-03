@@ -1,39 +1,37 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
 import { ChevronDown, ChevronRight, Plus, FolderOpen } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { createProject } from "@/app/(dashboard)/projects/actions";
+import type { ProjectItem } from "./DashboardLayout";
 
-const STORAGE_KEY_PROJECTS = "sidebar-projects";
 const STORAGE_KEY_OPEN = "sidebar-projects-open";
 
-function readStorage<T>(key: string, fallback: T): T {
+function readOpenState(): boolean {
   try {
-    const raw = localStorage.getItem(key);
-    return raw !== null ? (JSON.parse(raw) as T) : fallback;
+    const raw = localStorage.getItem(STORAGE_KEY_OPEN);
+    return raw !== null ? (JSON.parse(raw) as boolean) : true;
   } catch {
-    return fallback;
+    return true;
   }
 }
 
-export function SidebarProjects() {
-  const [isOpen, setIsOpen] = useState<boolean>(() =>
-    readStorage(STORAGE_KEY_OPEN, true)
-  );
-  const [projects, setProjects] = useState<string[]>(() =>
-    readStorage(STORAGE_KEY_PROJECTS, [])
-  );
+export function SidebarProjects({ initialProjects }: { initialProjects: ProjectItem[] }) {
+  const [isOpen, setIsOpen] = useState<boolean>(() => readOpenState());
+  const [projects, setProjects] = useState<ProjectItem[]>(initialProjects);
   const [isAdding, setIsAdding] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [isPending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_OPEN, JSON.stringify(isOpen));
   }, [isOpen]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_PROJECTS, JSON.stringify(projects));
-  }, [projects]);
 
   useEffect(() => {
     if (isAdding) {
@@ -49,11 +47,17 @@ export function SidebarProjects() {
 
   function commitInput() {
     const name = inputValue.trim();
-    if (name) {
-      setProjects((prev) => [...prev, name]);
-    }
     setIsAdding(false);
     setInputValue("");
+    if (!name) return;
+
+    startTransition(async () => {
+      const result = await createProject(name);
+      if (result) {
+        setProjects((prev) => [...prev, result]);
+        router.push(`/projects/${result.id}`);
+      }
+    });
   }
 
   function cancelInput() {
@@ -93,10 +97,11 @@ export function SidebarProjects() {
             e.stopPropagation();
             startAdding();
           }}
+          disabled={isPending}
           className={cn(
             "flex items-center justify-center size-5 rounded",
             "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent",
-            "transition-colors"
+            "transition-colors disabled:opacity-40"
           )}
           aria-label="Add project"
         >
@@ -131,20 +136,26 @@ export function SidebarProjects() {
           {/* Project list */}
           {projects.length > 0 ? (
             <ul>
-              {projects.map((name, i) => (
-                <li key={i}>
-                  <span
-                    className={cn(
-                      "flex items-center gap-2 px-3 py-1.5 text-sm",
-                      "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent",
-                      "rounded-md mx-1 cursor-default transition-colors"
-                    )}
-                  >
-                    <FolderOpen className="h-3.5 w-3.5 shrink-0 text-sidebar-foreground/40" />
-                    {name}
-                  </span>
-                </li>
-              ))}
+              {projects.map((project) => {
+                const href = `/projects/${project.id}`;
+                const isActive = pathname === href;
+                return (
+                  <li key={project.id}>
+                    <Link
+                      href={href}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-1.5 text-sm rounded-md mx-1 transition-colors",
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                      )}
+                    >
+                      <FolderOpen className="h-3.5 w-3.5 shrink-0 text-sidebar-foreground/40" />
+                      {project.name}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             !isAdding && (

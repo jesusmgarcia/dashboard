@@ -4,13 +4,15 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { navItems } from "./navItems"
 import { NavLink } from "./NavLink"
 import { SidebarProjects } from "./SidebarProjects"
+import type { ProjectItem } from "./DashboardLayout"
 
 interface MobileSidebarProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  initialProjects: ProjectItem[]
 }
 
-export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
+export function MobileSidebar({ open, onOpenChange, initialProjects }: MobileSidebarProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-64 gap-0 bg-sidebar p-0 text-sidebar-foreground">
@@ -24,7 +26,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
               <NavLink key={item.href} item={item} onClick={() => onOpenChange(false)} />
             ))}
           </div>
-          <SidebarProjects />
+          <SidebarProjects initialProjects={initialProjects} />
         </nav>
       </SheetContent>
     </Sheet>
