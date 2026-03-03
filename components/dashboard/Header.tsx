@@ -2,19 +2,14 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Menu, Moon, Sun, LogOut } from "lucide-react"
+import { Menu, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MobileSidebar } from "./MobileSidebar"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 export function Header({ title }: { title?: string }) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [dark, setDark] = useState(false)
-
-  function toggleDark() {
-    document.documentElement.classList.toggle("dark")
-    setDark((d) => !d)
-  }
 
   async function handleSignOut() {
     await fetch("/api/auth/logout", { method: "POST" })
@@ -36,10 +31,7 @@ export function Header({ title }: { title?: string }) {
       <h1 className="flex-1 text-lg font-semibold">{title ?? "Dashboard"}</h1>
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={toggleDark} title="Toggle dark mode">
-          {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          <span className="sr-only">Toggle dark mode</span>
-        </Button>
+        <ThemeToggle />
         <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign out">
           <LogOut className="h-4 w-4" />
           <span className="sr-only">Sign out</span>
