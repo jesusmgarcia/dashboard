@@ -26,8 +26,9 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  // Protect all /dashboard/** routes
-  if (pathname.startsWith("/dashboard") && !isAuthenticated) {
+  // Protect all /dashboard/** and /settings routes
+  const isProtected = pathname.startsWith("/dashboard") || pathname.startsWith("/settings");
+  if (isProtected && !isAuthenticated) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
@@ -35,5 +36,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/"],
+  matcher: ["/dashboard/:path*", "/settings/:path*", "/settings", "/"],
 };
