@@ -202,10 +202,10 @@ interface TaskCardProps {
   onSelect: (task: TaskItem) => void;
 }
 
-const PRIORITY_BG: Record<string, string> = {
-  high: 'bg-red-50    dark:bg-red-950/30',
-  medium: 'bg-yellow-50 dark:bg-yellow-950/30',
-  low: 'bg-green-50  dark:bg-green-950/30',
+const PRIORITY_BADGE: Record<string, { label: string; className: string }> = {
+  high:   { label: 'High',   className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+  medium: { label: 'Medium', className: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
+  low:    { label: 'Low',    className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
 };
 
 function TaskCard({ task, onSelect }: TaskCardProps) {
@@ -219,7 +219,7 @@ function TaskCard({ task, onSelect }: TaskCardProps) {
     cursor: isDragging ? 'grabbing' : 'grab',
   };
 
-  const priorityBg = task.priority ? PRIORITY_BG[task.priority] : '';
+  const badge = task.priority ? PRIORITY_BADGE[task.priority] : null;
 
   return (
     <div
@@ -229,9 +229,16 @@ function TaskCard({ task, onSelect }: TaskCardProps) {
       {...attributes}
       onClick={() => onSelect(task)}
     >
-      <Card className={`shadow-none py-2 ${priorityBg}`}>
+      <Card className='shadow-none py-2'>
         <CardContent className='px-3 py-2'>
-          <p className='text-sm'>{task.title}</p>
+          <div className='flex items-center justify-between gap-2'>
+            <p className='text-sm truncate'>{task.title}</p>
+            {badge && (
+              <span className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${badge.className}`}>
+                {badge.label}
+              </span>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
