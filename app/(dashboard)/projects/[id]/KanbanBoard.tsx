@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
+import { useState } from 'react';
 import {
   DndContext,
   PointerSensor,
@@ -20,7 +21,6 @@ import {
 } from '@/app/(dashboard)/projects/actions';
 import { type TaskStatus } from '@/app/lib/models/Task';
 import AddTaskForm from './AddTaskForm';
-import { TaskDetailDrawer } from './TaskDetailDrawer';
 
 const COLUMNS: { status: TaskStatus; label: string; allowAdd: boolean }[] = [
   { status: 'todo', label: 'To Do', allowAdd: true },
@@ -31,15 +31,18 @@ const COLUMNS: { status: TaskStatus; label: string; allowAdd: boolean }[] = [
 interface KanbanBoardProps {
   projectId: string;
   tasks: GroupedTasks;
+  onTaskClick: (task: TaskItem) => void;
+  onTasksChange: (newTasks: GroupedTasks) => void;
+  onTaskAdded: (status: TaskStatus, task: TaskItem) => void;
 }
 
-export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
-  const [columnTasks, setColumnTasks] = useState<GroupedTasks>({
-    todo: tasks.todo,
-    'in-progress': tasks['in-progress'],
-    done: tasks.done,
-  });
-  const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
+export default function KanbanBoard({
+  projectId,
+  tasks,
+  onTaskClick,
+  onTasksChange,
+  onTaskAdded,
+}: KanbanBoardProps) {
   const [, startTransition] = useTransition();
 
   // distance: 4 prevents very short pointer movements from starting a drag,
@@ -53,89 +56,46 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
     const taskId = active.id as string;
     const targetStatus = over.id as TaskStatus;
 
-    const sourceStatus = (Object.keys(columnTasks) as TaskStatus[]).find((col) =>
-      columnTasks[col].some((t) => t.id === taskId),
+    const sourceStatus = (Object.keys(tasks) as TaskStatus[]).find((col) =>
+      tasks[col].some((t) => t.id === taskId),
     );
     if (!sourceStatus || sourceStatus === targetStatus) return;
 
-    const task = columnTasks[sourceStatus].find((t) => t.id === taskId)!;
-    const prevState = columnTasks;
+    const task = tasks[sourceStatus].find((t) => t.id === taskId)!;
+    const prevState = tasks;
 
-    setColumnTasks((prev) => ({
-      ...prev,
-      [sourceStatus]: prev[sourceStatus].filter((t) => t.id !== taskId),
-      [targetStatus]: [...prev[targetStatus], { ...task, status: targetStatus }],
-    }));
+    const optimistic: GroupedTasks = {
+      ...tasks,
+      [sourceStatus]: tasks[sourceStatus].filter((t) => t.id !== taskId),
+      [targetStatus]: [...tasks[targetStatus], { ...task, status: targetStatus }],
+    };
+    onTasksChange(optimistic);
 
     startTransition(async () => {
       const result = await updateTaskStatus(taskId, targetStatus);
       if (!result) {
-        setColumnTasks(prevState);
+        onTasksChange(prevState);
       }
-    });
-  }
-
-  function handleAdded(status: TaskStatus, task: TaskItem) {
-    setColumnTasks((prev) => ({
-      ...prev,
-      [status]: [...prev[status], task],
-    }));
-  }
-
-  function handleTaskSaved(updated: TaskItem) {
-    setColumnTasks((prev) => {
-      const newState = { ...prev };
-      for (const status of Object.keys(newState) as TaskStatus[]) {
-        newState[status] = newState[status].map((t) =>
-          t.id === updated.id ? { ...t, ...updated } : t,
-        );
-      }
-      return newState;
-    });
-  }
-
-  function handleTaskDeleted(taskId: string) {
-    setColumnTasks((prev) => {
-      const newState = { ...prev };
-      for (const status of Object.keys(newState) as TaskStatus[]) {
-        newState[status] = newState[status].filter((t) => t.id !== taskId);
-      }
-      return newState;
     });
   }
 
   return (
-    <>
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-          {COLUMNS.map(({ status, label, allowAdd }) => (
-            <Column
-              key={status}
-              label={label}
-              tasks={columnTasks[status]}
-              allowAdd={allowAdd}
-              projectId={projectId}
-              status={status}
-              onAdded={(task) => handleAdded(status, task)}
-              onSelectTask={setSelectedTask}
-            />
-          ))}
-        </div>
-      </DndContext>
-
-      <TaskDetailDrawer
-        task={selectedTask}
-        onClose={() => setSelectedTask(null)}
-        onSaved={(updated) => {
-          handleTaskSaved(updated);
-          setSelectedTask(null);
-        }}
-        onDeleted={(taskId) => {
-          handleTaskDeleted(taskId);
-          setSelectedTask(null);
-        }}
-      />
-    </>
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        {COLUMNS.map(({ status, label, allowAdd }) => (
+          <Column
+            key={status}
+            label={label}
+            tasks={tasks[status]}
+            allowAdd={allowAdd}
+            projectId={projectId}
+            status={status}
+            onAdded={(task) => onTaskAdded(status, task)}
+            onSelectTask={onTaskClick}
+          />
+        ))}
+      </div>
+    </DndContext>
   );
 }
 

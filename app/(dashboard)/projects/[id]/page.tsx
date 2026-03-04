@@ -4,7 +4,7 @@ import { connectDB } from "@/app/lib/db/mongoose";
 import Project from "@/app/lib/models/Project";
 import { getTasksByProject } from "@/app/(dashboard)/projects/actions";
 import { FolderOpen } from "lucide-react";
-import KanbanBoard from "./KanbanBoard";
+import ProjectTabs from "./ProjectTabs";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -41,7 +41,7 @@ export default async function ProjectPage({ params }: Props) {
         </div>
       </div>
 
-      <KanbanBoard projectId={id} tasks={tasks} />
+      <ProjectTabs projectId={id} initialTasks={tasks} />
     </div>
   );
 }
