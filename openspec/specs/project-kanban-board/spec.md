@@ -10,7 +10,7 @@ The system SHALL provide a `Task` Mongoose model with fields: `title` (string, r
 - **THEN** the system SHALL set `status` to `todo`
 
 ### Requirement: Kanban board renders three columns from database tasks
-The system SHALL render a Kanban board on the project detail page with three columns — **To Do**, **In Progress**, and **Done** — each populated with tasks fetched from the database whose `status` matches the column. The To Do and In Progress columns SHALL additionally provide inline task creation affordances.
+The system SHALL render a Kanban board on the project detail page with three columns — **To Do**, **In Progress**, and **Done** — each populated with tasks fetched from the database whose `status` matches the column. The To Do and In Progress columns SHALL additionally provide inline task creation affordances. All task cards SHALL be draggable between columns.
 
 #### Scenario: Tasks are displayed in the correct column
 - **WHEN** a project has tasks with various `status` values
@@ -27,3 +27,7 @@ The system SHALL render a Kanban board on the project detail page with three col
 #### Scenario: Newly created task appears in the correct column immediately
 - **WHEN** a user creates a task via the inline form in a column
 - **THEN** the task SHALL appear in that column without a full page reload
+
+#### Scenario: Dragged task moves to target column immediately
+- **WHEN** a user drags a task card and drops it on a different column
+- **THEN** the card SHALL appear in the target column without a full page reload
