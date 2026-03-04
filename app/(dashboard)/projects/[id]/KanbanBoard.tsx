@@ -16,6 +16,7 @@ import { Plus } from "lucide-react";
 import { type GroupedTasks, type TaskItem, updateTaskStatus } from "@/app/(dashboard)/projects/actions";
 import { type TaskStatus } from "@/app/lib/models/Task";
 import AddTaskForm from "./AddTaskForm";
+import { TaskDetailDrawer } from "./TaskDetailDrawer";
 
 const COLUMNS: { status: TaskStatus; label: string; allowAdd: boolean }[] = [
   { status: "todo", label: "To Do", allowAdd: true },
@@ -34,9 +35,14 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
     "in-progress": tasks["in-progress"],
     done: tasks.done,
   });
+  const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
   const [, startTransition] = useTransition();
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  // distance: 4 prevents very short pointer movements from starting a drag,
+  // allowing click events to fire normally for opening the drawer.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
+  );
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -45,7 +51,6 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
     const taskId = active.id as string;
     const targetStatus = over.id as TaskStatus;
 
-    // Find which column the task currently lives in
     const sourceStatus = (Object.keys(columnTasks) as TaskStatus[]).find((col) =>
       columnTasks[col].some((t) => t.id === taskId)
     );
@@ -54,7 +59,6 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
     const task = columnTasks[sourceStatus].find((t) => t.id === taskId)!;
     const prevState = columnTasks;
 
-    // Optimistic update
     setColumnTasks((prev) => ({
       ...prev,
       [sourceStatus]: prev[sourceStatus].filter((t) => t.id !== taskId),
@@ -64,7 +68,6 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
     startTransition(async () => {
       const result = await updateTaskStatus(taskId, targetStatus);
       if (!result) {
-        // Roll back on failure
         setColumnTasks(prevState);
       }
     });
@@ -77,22 +80,46 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
     }));
   }
 
+  function handleTaskSaved(updated: TaskItem) {
+    setColumnTasks((prev) => {
+      const newState = { ...prev };
+      for (const status of Object.keys(newState) as TaskStatus[]) {
+        newState[status] = newState[status].map((t) =>
+          t.id === updated.id ? { ...t, ...updated } : t
+        );
+      }
+      return newState;
+    });
+  }
+
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {COLUMNS.map(({ status, label, allowAdd }) => (
-          <Column
-            key={status}
-            label={label}
-            tasks={columnTasks[status]}
-            allowAdd={allowAdd}
-            projectId={projectId}
-            status={status}
-            onAdded={(task) => handleAdded(status, task)}
-          />
-        ))}
-      </div>
-    </DndContext>
+    <>
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {COLUMNS.map(({ status, label, allowAdd }) => (
+            <Column
+              key={status}
+              label={label}
+              tasks={columnTasks[status]}
+              allowAdd={allowAdd}
+              projectId={projectId}
+              status={status}
+              onAdded={(task) => handleAdded(status, task)}
+              onSelectTask={setSelectedTask}
+            />
+          ))}
+        </div>
+      </DndContext>
+
+      <TaskDetailDrawer
+        task={selectedTask}
+        onClose={() => setSelectedTask(null)}
+        onSaved={(updated) => {
+          handleTaskSaved(updated);
+          setSelectedTask(null);
+        }}
+      />
+    </>
   );
 }
 
@@ -103,9 +130,10 @@ interface ColumnProps {
   projectId: string;
   status: TaskStatus;
   onAdded: (task: TaskItem) => void;
+  onSelectTask: (task: TaskItem) => void;
 }
 
-function Column({ label, tasks, allowAdd, projectId, status, onAdded }: ColumnProps) {
+function Column({ label, tasks, allowAdd, projectId, status, onAdded, onSelectTask }: ColumnProps) {
   const [showForm, setShowForm] = useState(false);
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
@@ -126,7 +154,9 @@ function Column({ label, tasks, allowAdd, projectId, status, onAdded }: ColumnPr
         {tasks.length === 0 && !showForm ? (
           <p className="text-xs text-muted-foreground text-center mt-4">No tasks</p>
         ) : (
-          tasks.map((task) => <TaskCard key={task.id} task={task} />)
+          tasks.map((task) => (
+            <TaskCard key={task.id} task={task} onSelect={onSelectTask} />
+          ))
         )}
         {allowAdd && (
           showForm ? (
@@ -154,7 +184,18 @@ function Column({ label, tasks, allowAdd, projectId, status, onAdded }: ColumnPr
   );
 }
 
-function TaskCard({ task }: { task: TaskItem }) {
+interface TaskCardProps {
+  task: TaskItem;
+  onSelect: (task: TaskItem) => void;
+}
+
+const PRIORITY_BG: Record<string, string> = {
+  high:   "bg-red-50    dark:bg-red-950/30",
+  medium: "bg-yellow-50 dark:bg-yellow-950/30",
+  low:    "bg-green-50  dark:bg-green-950/30",
+};
+
+function TaskCard({ task, onSelect }: TaskCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: task.id,
   });
@@ -165,9 +206,17 @@ function TaskCard({ task }: { task: TaskItem }) {
     cursor: isDragging ? "grabbing" : "grab",
   };
 
+  const priorityBg = task.priority ? PRIORITY_BG[task.priority] : "";
+
   return (
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
-      <Card className="shadow-none">
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      onClick={() => onSelect(task)}
+    >
+      <Card className={`shadow-none ${priorityBg}`}>
         <CardContent className="px-3 py-2">
           <p className="text-sm">{task.title}</p>
         </CardContent>
