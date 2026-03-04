@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Calendar, User, AlignLeft, Flag } from "lucide-react";
+import { X, Trash2, Calendar, User, AlignLeft, Flag } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -11,6 +11,7 @@ import {
   type TaskItem,
   type TaskPatch,
   updateTask,
+  deleteTask,
 } from "@/app/(dashboard)/projects/actions";
 import { type TaskPriority, type TaskStatus } from "@/app/lib/models/Task";
 
@@ -36,15 +37,17 @@ interface TaskDetailDrawerProps {
   task: TaskItem | null;
   onClose: () => void;
   onSaved: (task: TaskItem) => void;
+  onDeleted: (taskId: string) => void;
 }
 
-export function TaskDetailDrawer({ task, onClose, onSaved }: TaskDetailDrawerProps) {
+export function TaskDetailDrawer({ task, onClose, onSaved, onDeleted }: TaskDetailDrawerProps) {
   const [title, setTitle] = useState("");
   const [assignee, setAssignee] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TaskPriority | "">("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -57,6 +60,20 @@ export function TaskDetailDrawer({ task, onClose, onSaved }: TaskDetailDrawerPro
       setError("");
     }
   }, [task]);
+
+  async function handleDelete() {
+    if (!task) return;
+    setDeleting(true);
+    setError("");
+    const ok = await deleteTask(task.id);
+    setDeleting(false);
+    if (!ok) {
+      setError("Failed to delete. Please try again.");
+      return;
+    }
+    onDeleted(task.id);
+    onClose();
+  }
 
   async function handleClose() {
     if (!task) {
@@ -100,14 +117,24 @@ export function TaskDetailDrawer({ task, onClose, onSaved }: TaskDetailDrawerPro
               {STATUS_LABELS[task.status]}
             </span>
           )}
-          <button
-            onClick={handleClose}
-            disabled={saving}
-            className="ml-auto rounded-sm opacity-70 hover:opacity-100 transition-opacity disabled:opacity-40"
-            aria-label="Close drawer"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="ml-auto flex items-center gap-1">
+            <button
+              onClick={handleDelete}
+              disabled={saving || deleting}
+              className="rounded-sm opacity-70 hover:opacity-100 hover:text-destructive transition-all disabled:opacity-40"
+              aria-label="Delete task"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+            <button
+              onClick={handleClose}
+              disabled={saving || deleting}
+              className="rounded-sm opacity-70 hover:opacity-100 transition-opacity disabled:opacity-40"
+              aria-label="Close drawer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {/* Body */}

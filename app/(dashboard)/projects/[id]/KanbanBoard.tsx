@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useTransition } from "react";
+import { useState, useTransition } from 'react';
 import {
   DndContext,
   PointerSensor,
@@ -9,19 +9,23 @@ import {
   useDroppable,
   useDraggable,
   type DragEndEvent,
-} from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { Card, CardContent } from "@/app/components/ui/card";
-import { Plus } from "lucide-react";
-import { type GroupedTasks, type TaskItem, updateTaskStatus } from "@/app/(dashboard)/projects/actions";
-import { type TaskStatus } from "@/app/lib/models/Task";
-import AddTaskForm from "./AddTaskForm";
-import { TaskDetailDrawer } from "./TaskDetailDrawer";
+} from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+import { Card, CardContent } from '@/app/components/ui/card';
+import { Plus } from 'lucide-react';
+import {
+  type GroupedTasks,
+  type TaskItem,
+  updateTaskStatus,
+} from '@/app/(dashboard)/projects/actions';
+import { type TaskStatus } from '@/app/lib/models/Task';
+import AddTaskForm from './AddTaskForm';
+import { TaskDetailDrawer } from './TaskDetailDrawer';
 
 const COLUMNS: { status: TaskStatus; label: string; allowAdd: boolean }[] = [
-  { status: "todo", label: "To Do", allowAdd: true },
-  { status: "in-progress", label: "In Progress", allowAdd: true },
-  { status: "done", label: "Done", allowAdd: false },
+  { status: 'todo', label: 'To Do', allowAdd: true },
+  { status: 'in-progress', label: 'In Progress', allowAdd: true },
+  { status: 'done', label: 'Done', allowAdd: false },
 ];
 
 interface KanbanBoardProps {
@@ -32,7 +36,7 @@ interface KanbanBoardProps {
 export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
   const [columnTasks, setColumnTasks] = useState<GroupedTasks>({
     todo: tasks.todo,
-    "in-progress": tasks["in-progress"],
+    'in-progress': tasks['in-progress'],
     done: tasks.done,
   });
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
@@ -40,9 +44,7 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
 
   // distance: 4 prevents very short pointer movements from starting a drag,
   // allowing click events to fire normally for opening the drawer.
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
-  );
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -52,7 +54,7 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
     const targetStatus = over.id as TaskStatus;
 
     const sourceStatus = (Object.keys(columnTasks) as TaskStatus[]).find((col) =>
-      columnTasks[col].some((t) => t.id === taskId)
+      columnTasks[col].some((t) => t.id === taskId),
     );
     if (!sourceStatus || sourceStatus === targetStatus) return;
 
@@ -85,8 +87,18 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
       const newState = { ...prev };
       for (const status of Object.keys(newState) as TaskStatus[]) {
         newState[status] = newState[status].map((t) =>
-          t.id === updated.id ? { ...t, ...updated } : t
+          t.id === updated.id ? { ...t, ...updated } : t,
         );
+      }
+      return newState;
+    });
+  }
+
+  function handleTaskDeleted(taskId: string) {
+    setColumnTasks((prev) => {
+      const newState = { ...prev };
+      for (const status of Object.keys(newState) as TaskStatus[]) {
+        newState[status] = newState[status].filter((t) => t.id !== taskId);
       }
       return newState;
     });
@@ -95,7 +107,7 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
   return (
     <>
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           {COLUMNS.map(({ status, label, allowAdd }) => (
             <Column
               key={status}
@@ -118,6 +130,10 @@ export default function KanbanBoard({ projectId, tasks }: KanbanBoardProps) {
           handleTaskSaved(updated);
           setSelectedTask(null);
         }}
+        onDeleted={(taskId) => {
+          handleTaskDeleted(taskId);
+          setSelectedTask(null);
+        }}
       />
     </>
   );
@@ -138,28 +154,26 @@ function Column({ label, tasks, allowAdd, projectId, status, onAdded, onSelectTa
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between px-1 mb-1">
-        <span className="text-sm font-semibold text-foreground">{label}</span>
-        <span className="text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5">
+    <div className='flex flex-col gap-2'>
+      <div className='flex items-center justify-between px-1 mb-1'>
+        <span className='text-sm font-semibold text-foreground'>{label}</span>
+        <span className='text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5'>
           {tasks.length}
         </span>
       </div>
       <div
         ref={setNodeRef}
         className={`flex flex-col gap-2 min-h-24 rounded-lg p-2 transition-colors ${
-          isOver ? "bg-primary/10 ring-1 ring-primary/30" : "bg-muted/40"
+          isOver ? 'bg-primary/10 ring-1 ring-primary/30' : 'bg-muted/40'
         }`}
       >
         {tasks.length === 0 && !showForm ? (
-          <p className="text-xs text-muted-foreground text-center mt-4">No tasks</p>
+          <p className='text-xs text-muted-foreground text-center mt-4'>No tasks</p>
         ) : (
-          tasks.map((task) => (
-            <TaskCard key={task.id} task={task} onSelect={onSelectTask} />
-          ))
+          tasks.map((task) => <TaskCard key={task.id} task={task} onSelect={onSelectTask} />)
         )}
-        {allowAdd && (
-          showForm ? (
+        {allowAdd &&
+          (showForm ? (
             <AddTaskForm
               projectId={projectId}
               status={status}
@@ -172,13 +186,12 @@ function Column({ label, tasks, allowAdd, projectId, status, onAdded, onSelectTa
           ) : (
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-1 mt-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className='flex items-center gap-1 mt-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className='h-3.5 w-3.5' />
               Add task
             </button>
-          )
-        )}
+          ))}
       </div>
     </div>
   );
@@ -190,9 +203,9 @@ interface TaskCardProps {
 }
 
 const PRIORITY_BG: Record<string, string> = {
-  high:   "bg-red-50    dark:bg-red-950/30",
-  medium: "bg-yellow-50 dark:bg-yellow-950/30",
-  low:    "bg-green-50  dark:bg-green-950/30",
+  high: 'bg-red-50    dark:bg-red-950/30',
+  medium: 'bg-yellow-50 dark:bg-yellow-950/30',
+  low: 'bg-green-50  dark:bg-green-950/30',
 };
 
 function TaskCard({ task, onSelect }: TaskCardProps) {
@@ -203,10 +216,10 @@ function TaskCard({ task, onSelect }: TaskCardProps) {
   const style = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.4 : 1,
-    cursor: isDragging ? "grabbing" : "grab",
+    cursor: isDragging ? 'grabbing' : 'grab',
   };
 
-  const priorityBg = task.priority ? PRIORITY_BG[task.priority] : "";
+  const priorityBg = task.priority ? PRIORITY_BG[task.priority] : '';
 
   return (
     <div
@@ -216,9 +229,9 @@ function TaskCard({ task, onSelect }: TaskCardProps) {
       {...attributes}
       onClick={() => onSelect(task)}
     >
-      <Card className={`shadow-none ${priorityBg}`}>
-        <CardContent className="px-3 py-2">
-          <p className="text-sm">{task.title}</p>
+      <Card className={`shadow-none py-2 ${priorityBg}`}>
+        <CardContent className='px-3 py-2'>
+          <p className='text-sm'>{task.title}</p>
         </CardContent>
       </Card>
     </div>

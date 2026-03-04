@@ -110,6 +110,25 @@ export type TaskPatch = {
   description?: string;
 };
 
+export async function deleteTask(taskId: string): Promise<boolean> {
+  const session = await getSession();
+  if (!session) return false;
+
+  try {
+    await connectDB();
+    const task = await Task.findById(taskId).lean();
+    if (!task) return false;
+
+    const project = await Project.findById(task.projectId).lean();
+    if (!project || project.userId.toString() !== session.id) return false;
+
+    await Task.findByIdAndDelete(taskId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function updateTask(
   taskId: string,
   patch: TaskPatch
