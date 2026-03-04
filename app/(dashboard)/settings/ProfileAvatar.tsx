@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/app/components/ui/avatar";
 
 interface ProfileAvatarProps {
   fullName?: string | null;

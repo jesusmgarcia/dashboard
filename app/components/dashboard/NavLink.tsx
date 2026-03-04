@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
+import { cn } from "@/app/lib/utils"
 import type { NavItem } from "./navItems"
 
 export function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {

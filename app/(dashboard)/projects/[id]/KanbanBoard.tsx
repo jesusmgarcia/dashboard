@@ -11,10 +11,10 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/app/components/ui/card";
 import { Plus } from "lucide-react";
 import { type GroupedTasks, type TaskItem, updateTaskStatus } from "@/app/(dashboard)/projects/actions";
-import { type TaskStatus } from "@/lib/models/Task";
+import { type TaskStatus } from "@/app/lib/models/Task";
 import AddTaskForm from "./AddTaskForm";
 
 const COLUMNS: { status: TaskStatus; label: string; allowAdd: boolean }[] = [

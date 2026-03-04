@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { connectDB } from "@/lib/db/mongoose";
-import User from "@/lib/models/User";
-import { signToken } from "@/lib/auth/jwt";
+import { connectDB } from "@/app/lib/db/mongoose";
+import User from "@/app/lib/models/User";
+import { signToken } from "@/app/lib/auth/jwt";
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();

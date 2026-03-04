@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useTransition } from "react";
 import { ChevronDown, ChevronRight, Plus, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/app/lib/utils";
 import { createProject } from "@/app/(dashboard)/projects/actions";
 import type { ProjectItem } from "./DashboardLayout";
 

@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { Menu } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/app/components/ui/button"
 import { MobileSidebar } from "./MobileSidebar"
-import { ThemeToggle } from "@/components/ThemeToggle"
+import { ThemeToggle } from "@/app/components/ThemeToggle"
 import { UserProfileMenu } from "@/app/components/UserProfileMenu"
 import type { ProjectItem } from "./DashboardLayout"
 

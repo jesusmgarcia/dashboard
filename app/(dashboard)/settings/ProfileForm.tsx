@@ -1,10 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/app/components/ui/card";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { Button } from "@/app/components/ui/button";
 import ProfileAvatar from "./ProfileAvatar";
 import { updateProfile, type ProfileFormState } from "./actions";
 

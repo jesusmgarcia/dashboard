@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { createTask, type TaskItem } from "@/app/(dashboard)/projects/actions";
-import { type TaskStatus } from "@/lib/models/Task";
+import { type TaskStatus } from "@/app/lib/models/Task";
 import { Plus, X } from "lucide-react";
 
 interface AddTaskFormProps {

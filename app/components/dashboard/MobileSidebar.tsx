@@ -1,6 +1,6 @@
 "use client"
 
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle } from "@/app/components/ui/sheet"
 import { navItems } from "./navItems"
 import { NavLink } from "./NavLink"
 import { SidebarProjects } from "./SidebarProjects"

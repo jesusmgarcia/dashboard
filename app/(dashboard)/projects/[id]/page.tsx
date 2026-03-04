@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/session";
-import { connectDB } from "@/lib/db/mongoose";
-import Project from "@/lib/models/Project";
+import { getSession } from "@/app/lib/auth/session";
+import { connectDB } from "@/app/lib/db/mongoose";
+import Project from "@/app/lib/models/Project";
 import { getTasksByProject } from "@/app/(dashboard)/projects/actions";
 import { FolderOpen } from "lucide-react";
 import KanbanBoard from "./KanbanBoard";

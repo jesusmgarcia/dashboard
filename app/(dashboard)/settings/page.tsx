@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/session";
-import { connectDB } from "@/lib/db/mongoose";
-import User from "@/lib/models/User";
+import { getSession } from "@/app/lib/auth/session";
+import { connectDB } from "@/app/lib/db/mongoose";
+import User from "@/app/lib/models/User";
 import ProfileForm from "./ProfileForm";
 
 export default async function SettingsPage() {

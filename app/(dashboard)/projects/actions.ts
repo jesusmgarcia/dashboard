@@ -1,9 +1,9 @@
 "use server";
 
-import { getSession } from "@/lib/auth/session";
-import { connectDB } from "@/lib/db/mongoose";
-import Project from "@/lib/models/Project";
-import Task, { type TaskStatus } from "@/lib/models/Task";
+import { getSession } from "@/app/lib/auth/session";
+import { connectDB } from "@/app/lib/db/mongoose";
+import Project from "@/app/lib/models/Project";
+import Task, { type TaskStatus } from "@/app/lib/models/Task";
 
 export async function createProject(
   name: string

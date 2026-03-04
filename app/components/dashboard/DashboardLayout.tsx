@@ -1,8 +1,8 @@
 import { Sidebar } from "./Sidebar"
 import { Header } from "./Header"
-import { getSession } from "@/lib/auth/session"
-import { connectDB } from "@/lib/db/mongoose"
-import Project from "@/lib/models/Project"
+import { getSession } from "@/app/lib/auth/session"
+import { connectDB } from "@/app/lib/db/mongoose"
+import Project from "@/app/lib/models/Project"
 
 export type ProjectItem = { id: string; name: string }
 
