@@ -10,15 +10,16 @@ The system SHALL provide a persistent dashboard layout composed of a sidebar, a 
 - **THEN** its output SHALL appear inside the main content area of the dashboard layout
 
 ### Requirement: Sidebar navigation
-The sidebar SHALL display the application branding and a list of navigation links.
+The sidebar SHALL display the application branding and a single navigation link for the Dashboard.
 
 #### Scenario: Sidebar shows branding
 - **WHEN** the dashboard layout is rendered
 - **THEN** the sidebar SHALL display an application name or logo at the top
 
-#### Scenario: Sidebar shows navigation links
+#### Scenario: Sidebar shows only the Dashboard navigation link
 - **WHEN** the dashboard layout is rendered
-- **THEN** the sidebar SHALL display at least one navigation link with an icon and label
+- **THEN** the sidebar SHALL display exactly one navigation link: Dashboard (`/dashboard`)
+- **THEN** the sidebar SHALL NOT display Analytics, Users, or Settings navigation links
 
 #### Scenario: Active navigation link is highlighted
 - **WHEN** the current URL matches a navigation link's href
