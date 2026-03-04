@@ -1,7 +1,7 @@
 ## Requirements
 
 ### Requirement: Task table displays all project tasks in rows
-The system SHALL render a table listing every task in the project (across all statuses) with one row per task. The table SHALL display columns for: Title, Status, Priority, Assignee, Due Date, and Description.
+The system SHALL render a table listing every task in the project (across all statuses) with one row per task. The table SHALL display columns for: Title, Status, Priority, Assignee, Due Date, and Description. Each column header SHALL be clickable to sort the table by that column.
 
 #### Scenario: Table renders all tasks
 - **WHEN** the user is on the project page and selects the Table tab
@@ -18,6 +18,10 @@ The system SHALL render a table listing every task in the project (across all st
 #### Scenario: Optional fields are blank when missing
 - **WHEN** a task has no assignee, due date, priority, or description
 - **THEN** those columns show an empty/dash value without error
+
+#### Scenario: Column headers are sortable
+- **WHEN** the user clicks any column header
+- **THEN** the rows are sorted by that column and the header shows a direction indicator
 
 ### Requirement: Clicking a table row opens TaskDetailDrawer
 The system SHALL open the `TaskDetailDrawer` with the selected task's data when the user clicks any row in the task table.
