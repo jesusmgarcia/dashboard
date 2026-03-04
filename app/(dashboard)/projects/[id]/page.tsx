@@ -2,8 +2,9 @@ import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { connectDB } from "@/lib/db/mongoose";
 import Project from "@/lib/models/Project";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getTasksByProject } from "@/app/(dashboard)/projects/actions";
 import { FolderOpen } from "lucide-react";
+import KanbanBoard from "./KanbanBoard";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -28,9 +29,11 @@ export default async function ProjectPage({ params }: Props) {
     day: "numeric",
   });
 
+  const tasks = await getTasksByProject(id);
+
   return (
-    <div className="max-w-2xl">
-      <div className="flex items-center gap-3 mb-8">
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center gap-3">
         <FolderOpen className="h-7 w-7 text-muted-foreground" />
         <div>
           <h2 className="text-2xl font-bold tracking-tight">{project.name as string}</h2>
@@ -38,31 +41,7 @@ export default async function ProjectPage({ params }: Props) {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Project Details</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Project Name
-            </p>
-            <p className="mt-1 text-sm">{project.name as string}</p>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Project ID
-            </p>
-            <p className="mt-1 text-sm font-mono text-muted-foreground">{id}</p>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Created
-            </p>
-            <p className="mt-1 text-sm">{createdAt}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <KanbanBoard projectId={id} tasks={tasks} />
     </div>
   );
 }

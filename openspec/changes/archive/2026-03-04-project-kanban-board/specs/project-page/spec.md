@@ -1,4 +1,4 @@
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Project detail page route
 The system SHALL provide a route at `/projects/[id]` that renders a detail page for the specified project within the dashboard layout, showing the project name, creation date, and a Kanban board of tasks belonging to that project.
